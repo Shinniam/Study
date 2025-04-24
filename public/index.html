@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="ja">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Kimutichan Search</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+  </head>
+  <body class="bg-gray-100 min-h-screen flex flex-col items-center justify-start p-4">
+    <header class="w-full max-w-2xl text-center mt-8">
+      <h1 class="text-3xl font-bold text-green-600">Kimutichan</h1>
+      <p class="text-gray-600">超高速プロキシ検索エンジン</p>
+    </header>
+
+    <main class="w-full max-w-2xl mt-6">
+      <form id="search-form" class="flex">
+        <input
+          id="search-input"
+          type="text"
+          placeholder="検索ワードを入力"
+          class="flex-1 p-2 rounded-l border border-gray-300 focus:outline-none"
+        />
+        <button
+          type="submit"
+          class="bg-green-500 text-white px-4 rounded-r hover:bg-green-600"
+        >
+          検索
+        </button>
+      </form>
+
+      <div id="results" class="mt-6 space-y-4"></div>
+    </main>
+
+    <script>
+      const form = document.getElementById("search-form");
+      const input = document.getElementById("search-input");
+      const results = document.getElementById("results");
+
+      form.addEventListener("submit", async (e) => {
+        e.preventDefault();
+        const query = input.value;
+        results.innerHTML = "<p>検索中...</p>";
+
+        try {
+          const res = await fetch(`/proxy/search?q=${encodeURIComponent(query)}`);
+          const data = await res.json();
+
+          results.innerHTML = data.results
+            .map(
+              (r) => `
+            <div class="bg-white shadow p-4 rounded">
+              <a href="${r.link}" class="text-blue-600 font-semibold" target="_blank">${r.title}</a>
+              <p class="text-sm text-gray-600">${r.snippet}</p>
+            </div>`
+            )
+            .join("");
+        } catch (err) {
+          results.innerHTML = "<p class='text-red-500'>検索失敗</p>";
+        }
+      });
+    </script>
+  </body>
+</html>
